@@ -1,0 +1,13 @@
+
+*.db
+*.ipch
+*.txt
+*.obj
+*.recipe
+*.tlog
+*.log
+*.exe
+*.pdb
+*.ilk
+*.idb
+.vs/Grid 2.0/v17/.suo
