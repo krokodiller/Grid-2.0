@@ -21,15 +21,12 @@ public:
     bool operator<(const Edge& other) const;
 
     void setIndices(int a, int b);
-    void addFENumbers(int FE);
 
     int getIndexA();
     int getIndexB();
-    std::vector<int> getFENumbers();
 
 
 private:
-    std::vector<int> FENumbers;
     int aIndex, bIndex;
     Point a, b;
 };

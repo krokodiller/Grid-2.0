@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw
 
-point_size = 1
+point_size = 2
 scale = 100
 w, h =1000, 1000
 offsetx, offsety = 100, 100
@@ -28,7 +28,12 @@ def draw_fe(i):
     draw.line((convert_x(x[fes[i][2]]), convert_y(y[fes[i][2]]), convert_x(x[fes[i][0]]), convert_y(y[fes[i][0]])), fill="black")
 
 def draw_number(x, y, n):
-    draw.text((convert_x(x) + 10, convert_y(y) - 10), str(n), fill="black")
+    draw.text((convert_x(x) + 10, convert_y(y) - 10), str(n), fill="red")
+
+def draw_fe_number(n):
+    xdraw = (x[fes[n][0]] + x[fes[n][3]]) / 2
+    ydraw = (y[fes[n][0]] + y[fes[n][3]]) / 2
+    draw.text((convert_x(xdraw), convert_y(ydraw)), str(n), fill="green")
 
 def draw_coordinats(x, y):
     draw.text((convert_x(x) + 20, convert_y(y) - 20), str(x) + " " + str(y), fill="black")
@@ -72,11 +77,12 @@ draw.rectangle((0,0,w,h), fill="white")
 
 for i in range(0, len(x)):
     draw_point_good(x[i], y[i])
-    # draw_number(x[i], y[i], i)
+    draw_number(x[i], y[i], i)
     # draw_coordinats(x[i], y[i])
 
 for i in range(0, len(fes)):
     draw_fe(i)
+    draw_fe_number(i)
 
 for i in range(0, len(edges)):
     draw_edge_number(i)

@@ -83,16 +83,6 @@ bool Edge::operator<(const Edge& other) const
     return false;
 }
 
-void Edge::addFENumbers(int FE)
-{
-    FENumbers.push_back(FE);
-}
-
-std::vector<int> Edge::getFENumbers()
-{
-    return FENumbers;
-}
-
 FiniteElement::FiniteElement() : points(4), indices(4)
 {
 

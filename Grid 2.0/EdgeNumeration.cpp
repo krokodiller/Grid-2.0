@@ -3,86 +3,109 @@
 #include <set>
 #include <algorithm>
 #include <fstream>
+#include <iostream>
 
-void EdgeNumeration::numerateEdges(std::vector<Node>& nodes, std::vector<FiniteElement>& fes, std::vector<Edge> &edges)
+void EdgeNumeration::numerateEdges(std::vector<Node>& nodes, std::vector<FiniteElement>& fes)
 {
-    std::set<Edge> setEdges;
-    for (size_t i = 0; i < fes.size(); i++)
+    std::map<Edge, std::vector<int>> locEdges;
+    for (int i = 0; i < fes.size(); i++)
     {
-        Edge edge(fes[i].leftBottomIndex(), fes[i].rightBottomIndex());
-        if (!setEdges.count(edge))
+        Edge e(fes[i].leftBottomIndex(), fes[i].rightBottomIndex());
+        auto it = locEdges.find(e);
+        if (it != locEdges.end())
         {
-            edge.addFENumbers(i);
-            setEdges.insert(edge);
+            it->second.push_back(i);
         }
         else
         {
-            edge.addFENumbers(i);
+            locEdges.emplace(e, std::initializer_list<int>{i});
         }
 
-        edge.setIndices(fes[i].rightBottomIndex(), fes[i].rightTopIndex());
-        if (!setEdges.count(edge))
+        e.setIndices(fes[i].rightBottomIndex(), fes[i].rightTopIndex());
+        it = locEdges.find(e);
+        if (it != locEdges.end())
         {
-            edge.addFENumbers(i);
-            setEdges.insert(edge);
+            it->second.push_back(i);
         }
         else
         {
-            edge.addFENumbers(i);
+            locEdges.emplace(e, std::initializer_list<int>{i});
         }
 
-        edge.setIndices(fes[i].rightTopIndex(), fes[i].leftTopIndex());
-        if (!setEdges.count(edge))
+        e.setIndices(fes[i].rightTopIndex(), fes[i].leftTopIndex());
+        it = locEdges.find(e);
+        if (it != locEdges.end())
         {
-            edge.addFENumbers(i);
-            setEdges.insert(edge);
+            it->second.push_back(i);
         }
         else
         {
-            edge.addFENumbers(i);
+            locEdges.emplace(e, std::initializer_list<int>{i});
         }
 
-        edge.setIndices(fes[i].leftTopIndex(), fes[i].leftBottomIndex());
-        if (!setEdges.count(edge))
+        e.setIndices(fes[i].leftTopIndex(), fes[i].leftBottomIndex());
+        it = locEdges.find(e);
+        if (it != locEdges.end())
         {
-            edge.addFENumbers(i);
-            setEdges.insert(edge);
+            it->second.push_back(i);
         }
         else
         {
-            edge.addFENumbers(i);
+            locEdges.emplace(e, std::initializer_list<int>{i});
         }
     }
-    
-    this->edges.resize(setEdges.size());
-    std::copy(setEdges.begin(), setEdges.end(), this->edges.begin());
 
-    edges = this->edges;
-}
-
-std::vector<int> EdgeNumeration::EdgesByFE(int FE)
-{
-    std::vector<int> indices;
-    for (size_t i = 0; i < edges.size(); i++)
+    for (auto it = locEdges.begin(); it != locEdges.end(); it++)
     {
-        for (size_t j = 0; j < edges[i].getFENumbers().size(); j++)
-        {
-            if (edges[i].getFENumbers()[j] == FE)
-            {
-                indices.push_back(i);
-            }
-        }
+        edges.emplace_back(it->first, it->second);
     }
-    return indices;
 }
-
 
 void EdgeNumeration::printEdges(std::string name)
 {
     std::ofstream f(name);
-    for (auto it = edges.begin(); it != edges.end(); it++)
+    for (size_t i = 0; i < edges.size(); i++)
     {
-        f << it->getIndexA() << " " << it->getIndexB() << "\n";
+        f << edges[i].edge.getIndexA() << " " << edges[i].edge.getIndexB() << "\n";
     }
     f.close();
 }
+
+std::vector<int> EdgeNumeration::getPointsIndices(int number)
+{
+    if (number >= edges.size())
+    {
+        std::cerr << "incorrect index.\n";
+        return std::vector<int>();
+    }
+    std::vector<int> ret = { edges[number].edge.getIndexA(), edges[number].edge.getIndexB() };
+    return ret;
+}
+
+std::vector<int> EdgeNumeration::getConnectedFes(int number)
+{
+    if (number >= edges.size())
+    {
+        std::cerr << "incorrect index.\n";
+        return std::vector<int>();
+    }
+    return edges[number].feIndices;
+}
+
+int EdgeNumeration::getEdgeNumber(int indexA, int indexB)
+{
+    auto find = std::find_if(edges.begin(), edges.end(), [indexA, indexB](EdgeInformation e) {
+        return e.edge.getIndexA() == indexA && e.edge.getIndexB() == indexB;
+        });
+    if (find != edges.end())
+    {
+        return (find - edges.begin());
+    }
+    else
+    {
+        std::cerr << "no edge with these indices.\n";
+        return -1;
+    }
+
+}
+
